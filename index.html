@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Ein kleines Rätsel</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23b3192f' d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&display=swap">
+<style>
+  :root {
+    --nacht-1: #0b1430;
+    --nacht-2: #1b2a55;
+    --papier: #fffaf1;
+    --papier-rand: #ecdcc0;
+    --tinte: #3a2a22;
+    --tinte-hell: #76625a;
+    --rot: #b3192f;
+    --rot-dunkel: #85101f;
+    --gold: #d6a447;
+    --gruen-hell: #eef6f0;
+    --gruen-dunkel: #24513c;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { background: var(--nacht-1); }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 16px 24px;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--tinte);
+    background: radial-gradient(130% 85% at 50% 0%, #2b3d72 0%, var(--nacht-2) 38%, var(--nacht-1) 100%) fixed;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  #schnee { z-index: 0; }
+  #konfetti { z-index: 3; }
+
+  main {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .testhinweis {
+    margin: 0 0 18px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px dashed #c9a227;
+    background: #fff3c4;
+    color: #5b4500;
+    font-size: 14px;
+    line-height: 1.45;
+    text-align: center;
+  }
+
+  .karte {
+    position: relative;
+    margin-top: 36px;
+    padding: 54px 26px 28px;
+    border-radius: 22px;
+    background: var(--papier);
+    box-shadow: 0 22px 60px rgba(0, 0, 0, .45);
+    text-align: center;
+  }
+  .karte::before {
+    content: "";
+    position: absolute;
+    inset: 9px;
+    border: 1.5px dashed var(--papier-rand);
+    border-radius: 15px;
+    pointer-events: none;
+  }
+
+  .tuer {
+    position: absolute;
+    top: -36px;
+    left: 50%;
+    width: 72px;
+    height: 72px;
+    margin-left: -36px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 3px solid var(--gold);
+    background: radial-gradient(circle at 35% 30%, #db2c43, var(--rot) 55%, var(--rot-dunkel));
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .35);
+    color: #fff;
+    font: 700 28px/1 Georgia, "Times New Roman", serif;
+  }
+  .tuer svg { width: 32px; height: 32px; fill: #fff; }
+  .pochen { animation: pochen 1.3s ease-in-out infinite; }
+
+  .fuer {
+    margin: 0 0 2px;
+    color: var(--rot);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 0 0 12px;
+    font-family: "Dancing Script", Georgia, "Times New Roman", serif;
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--tinte);
+  }
+  h1:focus { outline: none; }
+
+  .einleitung {
+    margin: 0 0 22px;
+    color: var(--tinte-hell);
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .raetsel {
+    margin: 0 0 22px;
+    padding: 14px 16px;
+    border-left: 4px solid var(--gold);
+    border-radius: 10px;
+    background: #fff2d9;
+    font-family: Georgia, "Times New Roman", serif;
+    font-style: italic;
+    line-height: 1.55;
+    text-align: left;
+    white-space: pre-line;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--papier-rand);
+    border-radius: 14px;
+    outline: none;
+    background: #fff;
+    color: var(--tinte);
+    font: inherit;
+    font-size: 18px;
+    text-align: center;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  input::placeholder { color: #b5a596; }
+  input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 4px rgba(214, 164, 71, .25);
+  }
+
+  button {
+    padding: 14px 20px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #d22c43, var(--rot));
+    box-shadow: 0 6px 16px rgba(179, 25, 47, .35);
+    color: #fff;
+    font: inherit;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    cursor: pointer;
+    transition: transform .1s, filter .2s;
+  }
+  button:hover { filter: brightness(1.06); }
+  button:active { transform: translateY(1px) scale(.99); }
+  button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+
+  .rueckmeldung {
+    min-height: 1.5em;
+    margin: 16px 0 0;
+    color: var(--rot);
+    font-weight: 600;
+    line-height: 1.45;
+  }
+  .rueckmeldung.neu { animation: rein .35s ease both; }
+  .rueckmeldung.fast { color: #9a6200; }
+
+  .tipp {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--gruen-hell);
+    color: var(--gruen-dunkel);
+    line-height: 1.45;
+    text-align: left;
+    animation: rein .5s ease both;
+  }
+  .tipp strong {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 12px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+
+  .geloest { animation: rein .6s ease both; }
+  .geloest h1 { color: var(--rot); font-size: 46px; }
+  .nachricht {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.6;
+    white-space: pre-line;
+  }
+
+  .fusszeile {
+    margin: 20px 0 0;
+    color: rgba(255, 255, 255, .62);
+    font-size: 13px;
+    text-align: center;
+  }
+
+  .wackeln { animation: wackeln .45s ease; }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @keyframes wackeln {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-9px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(3px); }
+  }
+  @keyframes rein {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes pochen {
+    0%, 100% { transform: scale(1); }
+    15% { transform: scale(1.16); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.1); }
+  }
+
+  @media (max-width: 360px) {
+    .karte { padding: 50px 18px 24px; }
+    h1 { font-size: 34px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<canvas id="schnee" aria-hidden="true"></canvas>
+<canvas id="konfetti" aria-hidden="true"></canvas>
+
+<main>
+  <p class="testhinweis" id="testhinweis" hidden></p>
+
+  <section class="karte" id="karte" aria-labelledby="titel">
+    <div class="tuer" id="tuer" aria-hidden="true"></div>
+    <p class="fuer" id="fuer" hidden></p>
+    <h1 id="titel"></h1>
+    <p class="einleitung" id="einleitung"></p>
+    <p class="raetsel" id="raetsel" hidden></p>
+
+    <form id="formular" autocomplete="off" novalidate>
+      <label class="sr-only" for="antwort">Deine Antwort</label>
+      <input id="antwort" type="text" maxlength="200" autocomplete="off" autocorrect="off"
+             autocapitalize="off" spellcheck="false" enterkeyhint="go">
+      <button type="submit" id="knopf"></button>
+    </form>
+
+    <p class="rueckmeldung" id="rueckmeldung" role="status" aria-live="polite"></p>
+    <div id="tipps"></div>
+  </section>
+
+  <section class="karte geloest" id="geloest" aria-labelledby="geloestTitel" hidden>
+    <div class="tuer" aria-hidden="true">
+      <svg class="pochen" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+    </div>
+    <h1 id="geloestTitel" tabindex="-1"></h1>
+    <p class="nachricht" id="nachricht"></p>
+  </section>
+
+  <p class="fusszeile" id="fusszeile"></p>
+</main>
+
+<script>
+"use strict";
+
+// =====================================================================
+//  EINSTELLUNGEN – diese Texte darfst du frei ändern
+// =====================================================================
+const EINSTELLUNGEN = {
+  // Ihr Name, z. B. "Anna" → oben steht dann „Für Anna“. Leer lassen = nichts.
+  name: "",
+
+  // Nummer dieses Türchens, z. B. "12". Leer lassen = ein Herz statt Zahl.
+  tuerchen: "",
+
+  titel: "Ein kleines Rätsel",
+
+  einleitung: "Erinnerst du dich? Löse das Rätsel aus deinem Türchen und gib hier die Antwort ein – erst wenn sie stimmt, darfst du den Sack mit deiner Belohnung öffnen.",
+
+  // Optional: den Rätseltext hier zusätzlich anzeigen. Leer lassen = nicht anzeigen.
+  raetsel: "",
+
+  platzhalter: "Deine Antwort …",
+  knopf: "Antwort prüfen",
+
+  // Wird zufällig angezeigt, wenn die Antwort falsch ist.
+  falsch: [
+    "Leider nicht – versuch’s nochmal! 🎄",
+    "Hmm, das ist es nicht. Denk nochmal an unser Date … ❤️",
+    "Nope! Aber ich glaub an dich 😘",
+    "Das war’s leider nicht – lies das Rätsel nochmal in Ruhe ✨",
+  ],
+  leer: "Du musst schon etwas eintippen 😉",
+
+  // Tipps erscheinen nach so vielen falschen Versuchen, z. B.:
+  //   { abVersuch: 3, text: "Es war ein ziemlich kalter Abend …" },
+  tipps: [],
+
+  geloestTitel: "Richtig!",
+  fusszeile: "Mit ❤️ für dich gemacht",
+};
+
+// =====================================================================
+//  Lösung und Erfolgsnachricht – verschlüsselt, damit man im Quelltext
+//  nicht schummeln kann. Erzeugt von werkzeug/antwort-setzen.mjs.
+// =====================================================================
+/* GEHEIM-START – nicht von Hand ändern */
+const GEHEIM = {"test":false,"salz":"f50ee9d90e2a02059cecd79dd526c9e3","gruppen":[{"art":"richtig","inhalt":"2e24f21d8e02f46a137c1e5d61efd8bb8c24ea9841e82d58348d9202ec674325365a147e59d981e99b448a75ab7686747adad3eca57183bba06bd4656021ffec54d0fa3ac292b01d7584a69873192bee9310657eddf2f200608fc8c55244e6f9f72e64113bf937afddef3fe29e14c0922190e4437098c4b4b905c54a7f63ce3a943f"},{"art":"fast","inhalt":"69a4a8044f8eeb78cab42b6ebc57ecaf55bdebcbba731f485cfe7d873d9165e594fb89e524e4a14e7071bd9cd7d2ca19a6f53e607c"}],"schluessel":[{"p":"4543f2dd16f7836c323d8a2116ce2a96","k":"f96c24a9aaaacb5c612e9598b5a51c236b0505a0b88c1dbac1beb46869cb6c22","t":2,"g":0},{"p":"10306de244d2a93fefe873c14357b8af","k":"b746199a6def6c73f071d68e5bfde207ab9af00065c75e1ae815cfc91289f26d","t":2,"g":1},{"p":"1b0899222128dcc56f101d7cda73603f","k":"140ef10a8eda351cb567531d340ad1f30a478cc50ffed72d4279e69ffe04cf64","t":2,"g":0},{"p":"48d6e876db44023795c8e0f9860b3979","k":"0248988cd8edbea28971db4570f4e1de63b550d8c70ae675e4294b7ae3ebfbfa","t":2,"g":1},{"p":"d4ec6931654a4e361a4c7fa99ae30705","k":"457f16875bfe45484fc1e7b3a1e249a242ba68608cd7e1105eed51718d455aac","t":2,"g":0},{"p":"37dfd100f5a79e966fda3e904a661975","k":"0b7a86b4453dc30260ca4906cec51c027b1c735e30f225b0791105700614f9e8","t":2,"g":1},{"p":"ff522fc31a277386694fabf2d36cca50","k":"a0505e86eb8f30491c7a343ed3b43f0a7e8a8f56bbfce7cc4db7c49c5031a852","t":2,"g":0},{"p":"63829749659a480e909caa51bec6963d","k":"48183574bdcb4f85e69b1ddc135fc16a391aaf12a74756ce8613e557342087ff","t":0,"g":0},{"p":"ab1c3a5666b50d12a49e99beae309309","k":"b82e5f4396a9e4fbe234e275da0ba80075be8d3e8e56e9807a8e272fb55eec55","t":2,"g":0},{"p":"3b96836a6e3dd8714cbf4b09bd934ab4","k":"8ee8415028a7a227dd971d2e8f16fd726fab9592d4749941001013716d521dcc","t":2,"g":0},{"p":"2e63da85b22405f6f8f1c019d846ecb7","k":"c202361e49f6e618d2d8313ad6ce854ef86db668215df43814654fcde3302a11","t":2,"g":1},{"p":"bb7380ff4da2c7e2d21c6e661b03c4d8","k":"ec91678faafe28b845f06fbfe21b478740e9c6ce760f3528f96ae17814b44073","t":2,"g":1},{"p":"598b4d51eb985d4d801640e85ba2d546","k":"b6f2c0819834ac76dabf765f02e2b78e057b1e77547f83b689a98de6b0a11916","t":2,"g":0},{"p":"a00fb489a5d6081b3db849357acc3a23","k":"96db1323ced376952214c01b53f76652a96e3b678212dcd4234f2c97de63daa8","t":2,"g":0},{"p":"ac85230b60ce463bc7d13cd25ffaee6d","k":"deb44167a5c1d3cf7228ad8ec574c6ef39d86d7b7eae8f9c3d99a3d8122c864a","t":2,"g":1},{"p":"22e79dce3abc182712a8fd18a9c4e583","k":"aeb7ef0d38607ccf7ec121930ff5f413825a3d7183e7bda3f4ca6d14efff28b9","t":2,"g":0},{"p":"bbea532ebc5ab9dcd461b34c694a72c7","k":"1de13a46fd4db5651bebf2028ae01eb57e113613cc61bb39e4801d1cd4816cb9","t":2,"g":0},{"p":"52a8331e3750fd22509b2c905fa09fa6","k":"02192efc7210c0f6dadb6b0dee743cb5aad2e6fdac02566ef9f8a20b2fb06d86","t":2,"g":0},{"p":"b9d8d98ecbb75f43c366737122bf9e77","k":"938f16e7c85a63267405d33b88748240e36c4e0dd3f047ecee346504e8b39ca0","t":2,"g":0},{"p":"f72199b59a2ac2acf3bfc3106f0efe65","k":"381229e265a36f4e3a49db69e803a9155e86908720639448faedb1a161c6ce1a","t":2,"g":0},{"p":"870c12f69015218efe515dc7b891c3f3","k":"ce6d32df6440ab345595b07ad3564eb7ab9e3c2b59bf67edbe99c5a55992ddb1","t":2,"g":1},{"p":"240051ada21c875514b3afe680cecec2","k":"5fe28df37af82f130e0de7d6e75c1399f02c6c903df41a2edc9fec1bda79d575","t":2,"g":0},{"p":"391aba6edcaa9641466aec497cf63606","k":"c73ac04b258fe6d0b3ac97088e80ce26ba7910e4b28bacda93a39ed6b99f7fbc","t":2,"g":0},{"p":"7b831ad4e461bbbd7bc8c78b0e5cd31e","k":"0d69adabaeee53b760770bcc2054c1fe66e9bbd442fdbbcd79646dc956873918","t":2,"g":1},{"p":"2aa610ba841a107668cc1ff5fa1290fd","k":"70306ab9641a5c75250a7f85cdefe24d4a66200d0e176cbacfd18baadbae36cd","t":2,"g":0},{"p":"c427e6e438e8f1ee63b65d10edd172b6","k":"712f1db82747077ca6757d74f4996efcdcf6050c9365acc4c31cd27d04a23c54","t":2,"g":0},{"p":"765e4bc36ddfaf3f39e6cdaf9b28d893","k":"83207d812ee239d27f113834118cf6e69f5a70084fa8e8070dc8d97d43a31e0c","t":2,"g":1},{"p":"ce0b2a7039da55cdbfaa0095a2eb2e9f","k":"ccd5584d0377c47610e3eb5cc416e5929c5c3934a8447ed1de701917a6cdb69a","t":2,"g":0},{"p":"1d1ee2550f766dbbaaf3c38b6cbe015c","k":"f494270319cc5828a20c392dba79d93c9f9fa658920b86f06b0671455ddbe389","t":2,"g":0},{"p":"266ee10e51005a9fe77088fa3534b3e8","k":"4adf72dacfd876a5a080cb3b71e07a74056abb755e96a80d79033a7a69fc7303","t":2,"g":0},{"p":"be5282117a3e040245211fdd2babdb2e","k":"8cbd5c7c7b2c7574ea6095d83d14eea8c112b50b07d8e78ca40343dd376c32a0","t":2,"g":0},{"p":"61f9558e0f6c5966568afde9794eeb99","k":"2b6bfda4650c6150ff05b4c36ec2e0130743619b706bda4c8d9d8b77f19aa8d7","t":2,"g":0},{"p":"c5621ae5a938229e8eab3301e4b57288","k":"916d2c4d90fe02b8e59910f67abbd697df6d130fd6f1e3e934ac98d1ec26cf46","t":2,"g":1},{"p":"9fd00b2bf73c29587e033f2bc56307a2","k":"b3aecfe99cb4641e753ca4eca4861147660d33aec6ceca45eabf8526c6cce05f","t":2,"g":1},{"p":"685ea8ddfb7e00b96c9b1ecf5fbb885a","k":"3a86678fd59509a279938221f139861730daf7388a5937012ddc734ab31a5d05","t":2,"g":0},{"p":"684887d43a35b25149766e46221dcc0a","k":"f4fda9412a3aef4557cf9fc4a5891e38d8b4ec65534b3eb1f03975635a52e838","t":0,"g":0},{"p":"f1ef8f7d5d76a94df540015d31557025","k":"1e26c81e89c1543825ab22c6d3a3610ecca4ef773e0feace20368df329ed46df","t":1,"g":1},{"p":"2089af1355c3253a2ba37b42e167b1d8","k":"f6c4b981e51b59e7065c665bdc1b6f3f857ef77b7a110c73c73d8a7342715397","t":2,"g":1},{"p":"efa4a9d28c7e6ac2d72fa0c848314906","k":"1fd6a157de3b1425daec3d3c785d00700bfabfadf682dfebdfdef2ff5e68011f","t":2,"g":0},{"p":"c19b5649683ea219f50518bc554a27dc","k":"3540c4c28df0046ba95f8fab0b471371f0fd25cb676e7d3e49487b468221f333","t":2,"g":0},{"p":"54c483b0817602d0ffaa06f26b6a31c5","k":"9924f27d4b48454d59b2700b6c207cbaab867b894e722a205940b4acbc489258","t":2,"g":0},{"p":"a03c26130add185cb5f70ddfaac1bce0","k":"03fde381aa6e2827ad3d85c17a32617a0b5cfe211b5bfc7d13f5ad437e918a81","t":2,"g":0},{"p":"7f8a4ce80492ad1a275c91f1b047d773","k":"83be0d5ad6a5636378f715cf69cb989c877eb4aace549e7b6134b16df293c53c","t":2,"g":0},{"p":"34a3165436c8c9979e0f291f2226347b","k":"1ecc5b2e085784d808250a3f5b82774345e040e4316efb981b2b56765daa4a26","t":2,"g":1},{"p":"0f386c6819ccf259c5788a9b9abd7c6b","k":"1742f57070a82301b309caa61fcf40afd39cf06017b62a8baf18e1e05c8ba6ef","t":2,"g":0},{"p":"4ba59933ec55ddf28b1ae39533a91415","k":"c1afc7fe4d41a23511d37f3029ecfdfbf01aa0989409954e0c951afc2e6e1c25","t":2,"g":1},{"p":"432edf1a76f6914f666874304ab3ac35","k":"5a5c38d25e0b6c1484fda8dbd983a6f7c96c004d90f5d33765cdb1b98d0cbbed","t":2,"g":0},{"p":"cb57486796836f1a5ec6e9e2d5528d73","k":"657a855b87710a2e7728ab396c6d6b8682f6d152343dd578ae7c36294ffc6b4a","t":2,"g":0},{"p":"363640f0de2c027baa5fcb8b5f43e20c","k":"1144b4ce3e3d301ddfa4125a4fbeb9502a33d2dfd5fd561455144d5e4d67f252","t":2,"g":1},{"p":"d9d999938ab9aa4c4c80dc431f0514e8","k":"40a3aa99171906d62c56807d4efde44f3cafed2e356e45e0d8fd162aa3e0a1ad","t":2,"g":0},{"p":"ef4ff88bbcb1b8009cff4cb230f8e44e","k":"b8d92e0531a4aa859b19cb10b51d1ed83ff26fe136635b1c7d01f41e8908bb85","t":2,"g":0},{"p":"18e876dd23057fea212d4c0cd48f5195","k":"38101a9efa07e5ac38909479a3b0834d1a76f37ae98002b9d5ba6f9bb065e4be","t":2,"g":0},{"p":"0cf8a6e69b4561639059575849025992","k":"78da28ce298c001ca300bc54135cb934cce8c9b982aa9a3d795fc86d8055c3e4","t":2,"g":0},{"p":"55303031becc01dd19f64a3cc2a58943","k":"558d292772ce74d1ee203566a7d937799574e115b55ed669e12d3d443a565d9d","t":2,"g":1},{"p":"d29b12ec1baea74be53553f0afd69a90","k":"91ec025d55525b403585128190f1ebee52609cb3201bd8461d2c89c80525a9a7","t":2,"g":0},{"p":"11d1051689b8c426f7476dbd65282959","k":"be1ee345d16ae14052a8aa3625140b40e71bd7e0de3a893bb74e4801a103f956","t":2,"g":1},{"p":"74e5a3ab3a8807d6aa88b2d16971cfd6","k":"50e1b1ad017d66764ae0ecd44c8515c3ab37160cefc635c80b4bd9711d8e231a","t":2,"g":0},{"p":"b050e229053affc11db81c7be1d0d536","k":"e0f569d2118d7969d32063d86ef17ad81e07ca82a9c779950e8b4ea10bbcf0a8","t":2,"g":0},{"p":"c458eab967e6bfba88e360ad38516cd9","k":"f0d04da0b0e89f70a8f3cf8783531e90194ff63b928288ab63900b00a7609ea6","t":2,"g":0},{"p":"ecacd64cfb3ccfa00023aded0b581ccc","k":"37b92448ca5ccc0e6b9b577175917629d3f571d08713674436509a5fc5895c91","t":2,"g":0},{"p":"4539dc41d917b7056c5b7b18767c763c","k":"3dbe1d6d8d793a1955a394ba1f33c5a929872797c861b9ec1b9ddaaa58fe2fca","t":2,"g":1},{"p":"c3b39addc6d0ef0ffae89dd99752a1a1","k":"8a5de7d963f97446f51e225dc4040d5e7cd3574d148a6ae39f4ebc9b29279bf0","t":2,"g":0},{"p":"6b6544478ed404b84f66c1eba7913a0d","k":"a7d21cbd0683c7317819a1c575e54762b45da9567eadabec81f2a557890e516e","t":2,"g":0},{"p":"c87906e2e2db5e3ed5232b82cac2000f","k":"b1f3e34acb793831fd8a70b7565be205decb218a9304c00c5c01370bf8cf1535","t":2,"g":0},{"p":"55013a5719ccaab017687585d1fdd377","k":"9eb194a7d01f5b26ee617d23d90f793a0d8717a8207bb83184e27acec0807325","t":2,"g":0},{"p":"e368f4cc4629aeb67b10c1538b46d501","k":"39d7a94d290f23209d67edfb71c1a3bf72024f0e27d16d779903f7a42950043e","t":2,"g":0},{"p":"7fd3a56f156ce7244a7b3b9ed08485c3","k":"46fd75fd14e66ec60b55163d5e580a0e3c7283450bba79ec5ad861142b4c9e67","t":2,"g":0},{"p":"cf0d5af638497d2398df17922394a7ad","k":"b1472a60db553355969987afe6d59e84b4948a394fecc133a344b22c21b22067","t":2,"g":0},{"p":"4c408a32ab8d12abb6be651b23c342ff","k":"042108bbdc1a1073af841a0f35087a8cb8f15b9255e9e3c519ffe9d01ae74451","t":2,"g":0},{"p":"16dfc6884a01d76de0143799ddd9cba1","k":"7a944b7a35bda66cc58e40fdc49f8d9a86e640e645863716e84ca6e324c302a6","t":2,"g":1},{"p":"684c7d31ec7ab929eacebc3dd0683856","k":"959e5b874d22fe48b398cba32ef2160ee692c75c03b319fe38e4e21e42356f77","t":2,"g":0},{"p":"901681e19f15585170f8bfcef14a45d7","k":"d2557df4ed225e91cb254d94525142235250978e5763fbe3d385bfcbfbddfc87","t":2,"g":0},{"p":"b130ca2b07a53d26da53e1c32346de1f","k":"f587b4708a5d6c648caefc1c1b2308f0ad9b044a45640563ec05ff1ac18076f3","t":2,"g":0},{"p":"22475476dd4aec42fcaca8a78ab2e882","k":"390a3fdcb063d4f9b3c9e940fa67dbf440e70b20720f917fe7d75d21a3d1307d","t":2,"g":0},{"p":"b2b35f495ab4e20f36320cdb00e0dd0b","k":"eee8ea8677b52618ad89d71bff746a52da9a24d9061c77f99fd42b939df9865e","t":2,"g":1},{"p":"580a03e307a90bc74984593ff8911628","k":"be451bbd9937cf4a2f0ab2fc1db03814a9ea53656a3f7a501c61e1139cd7926f","t":0,"g":0},{"p":"278e21550c41a6185273d4691aa26904","k":"81dbba43621601eb7d973917636532ec452c3e63a487b785e3668b088253e2a6","t":2,"g":0},{"p":"a20542757f4bfe9201050acd9b30a4bb","k":"792fa1f469f3c5a3e3175cb89bb2a187ac323a01268fab9a984bfbb68c718511","t":2,"g":0},{"p":"a3c6f1f9475494fa667123a62ba9f52f","k":"b5dccbdfc56462e6dbe6b9f5b674e046f46df1fdb719114a6ef0021b9a8ad119","t":2,"g":0},{"p":"634fec99efc5a26cab360cf61f2f5aad","k":"bf8b4f916ddca8bc908015f4c54175b26c6edf4eb299209fceed8f4fcd51d1c7","t":2,"g":0},{"p":"17093b843cbdedfdb8d27af129ebb352","k":"218a3c7b924f9e007c1e7bfc5d90812fc133f7dff2d7014532b18c315abab426","t":2,"g":1},{"p":"b8296ef347040d40a002a1eb738dfedb","k":"4bb51c0d0655ea46c3617cb1ea612b44de5616d73d50809e0b762a3a6af87a7c","t":2,"g":0},{"p":"9fb3d3423f7ffd5ca45b5e4278730836","k":"63890c777a770632491b2a0f761b987bdab5d28f1db14ee18df7f72c5b189646","t":2,"g":0},{"p":"f99b95111749abdd1b4a91be52b43b4b","k":"b2bdf152b227d738af780395af4315014ecd910a75b2747bb31157f8a0be1449","t":2,"g":0},{"p":"fe904826dc9478404ebf878fb1158d98","k":"a83d54083788e1cc5f5a33d042c0c0503ef47e4776ea498055b53d26d167aafb","t":2,"g":0},{"p":"6b6d0871d86d2f24d73daf01c9a5af7f","k":"163a63d139d5cdfcdfb6e459cc44e3e8fd286123702ef21fbc2ae8a5222ffb28","t":2,"g":0},{"p":"4a220b838ebfe5ba92a24506ca46a366","k":"c4584e8020af414bdd07975f920c1204836c906567663256c75ebc24af1db764","t":2,"g":0},{"p":"d471317cfde01a8b7d39936c15be3e3b","k":"ae735a8074d94be467f60f5a9451d7615c5ec1eb85b200451149ed7848537517","t":2,"g":0},{"p":"2290aec91bdf9aede06b23b8f52e125d","k":"7b8281ba50cc57f9da01f129fcd95cb206ce186aa0c690df412c8db316453883","t":2,"g":0},{"p":"74c5f96bacedc33d05b1bc0afebfc4b1","k":"cdfb9b2118ab9c9b7c1bea8873dba7a755ba83e23d76a1a298f579a5ad210146","t":2,"g":0},{"p":"56b508d7d69e09784fda5643d7ab2af6","k":"1191ad1b1edae0c3bca83e59038898a8bc8b99676bdfc383f43ad7b0f4e71abd","t":2,"g":1},{"p":"b5f3b08b912615fcf1f8a59143b53eff","k":"2cb5785b8ea48122ad26a0e9ccee5bb76bec769607b5ad61e197e779a1de953f","t":2,"g":0},{"p":"a2a645dba14cfdec615fd43d36e5cd08","k":"736c9b3f7c153114bf79a6158b12c7296009312f1b7abb614ab42772efeb251a","t":2,"g":0},{"p":"030962dcb7b8919742eb76718f51699d","k":"d7a0c2ee9809652d559eb05a6c79c207d23202947a1b393027d1a5219c096b7a","t":2,"g":0},{"p":"7b6e3e3b3280a253b1eb08093aa9c3ac","k":"f7a02f01cddb8d3af3cc2bccf9eded26a7a3747a1798bb7442f0f21450b9468b","t":2,"g":0},{"p":"8eae3cdbcad75ae264300b0c6436c877","k":"d6f7cdd9fb2ffdc6c6fcfb5c3f28ade908c8b994df3668b5a3cd51494cef692d","t":2,"g":0},{"p":"3b4d8b7753a52687b8d526416cc59614","k":"0bcbd9950c0af2235959776561db73b48973b8759b5accf29a2180e4ee81afde","t":2,"g":0},{"p":"821b4ec2bc73abb5ae17efe149d69484","k":"0bd215e387a1af08bbe471ea2feaadf9b3b679d6924b2af95c49fdd6df011acf","t":2,"g":1},{"p":"b62f4e74093f9834551c8ff3ee3f1dde","k":"f9f153a3bdd2e24f11011108bb2948494fb544715ff04edbe83c2e78fe7cebb3","t":2,"g":0},{"p":"97d2fab9a503cae10ea2ad62915e024c","k":"2bedf2c05d94ec4287ad674b7353e730825283b3fcf54952a80d7df72492548b","t":2,"g":0},{"p":"88c8cb00bd3a33f8ffefdf3f07d1f98f","k":"2e672662e61edd45527ba2228713aa425788b3e973721fdec04ecefc70709e97","t":2,"g":0},{"p":"9c0a4c06551abdf0a5a2d7fc49831719","k":"767d189836bddcf12141454f35833924235a3b4275a96bca141450eaaa20083e","t":2,"g":0},{"p":"1c0f72f38b4266fa91bc4d39272569f4","k":"e6039798a040e4dce91c46eeb70bf6415c1e444e4d4dd594c792cdc7c02129eb","t":2,"g":0},{"p":"52ad64c33cf86302d8275f237f2da238","k":"c8896bbca910450b1146800d0c767e116a857ac08659b0c4ca774cd252ee491b","t":2,"g":1},{"p":"97ac61a742774826842ce043b3625fea","k":"9dc031da0ebbf531bb0b85dd04a2aa51f476619ab2d4046d6090404edc3e0b00","t":1,"g":1},{"p":"7b4c8d095f433f50400659f174ce60fd","k":"b945251d29f25918e27f09df124d23d44c2c2252aa4dd3442eab8ee67bb5c0c1","t":2,"g":0},{"p":"55c4266569de86ef4d8b8150b817e924","k":"072161c3e9e8727647c157e9d2aa1dbd78a1e545e17d0e5b812b66feb54743e7","t":2,"g":0},{"p":"b99f449f98ed24fac718429084c068c9","k":"70b4a7a8861b8ac4c49dce0d0d0eaa7997c9aaf5f1f98d5cfbf414ad93f65e0c","t":2,"g":0},{"p":"49e03e59a0747784168466a1754c25c3","k":"6eda4629211669bc23c3e6d0878c34432129fe52d896c12ea4bcce470d0a0263","t":2,"g":0},{"p":"792fdc9f6ffe8710b45c3d8eb5a7bfc0","k":"293b826c2193b0449164796e82b799765922275806bb55d9ab137fad5de9abd4","t":1,"g":0},{"p":"46820ae02924a42e0043b8a40b9860a4","k":"86637a4deb70d6398f2f886a74ce2584e3b660733cb0f1c163a9e079c81fd89f","t":2,"g":0},{"p":"377b35e4c0e341309f2d956cb365c6be","k":"7ea77114f3c9bf78f76642679740fbbb4bc2d977057cda60d3c041f2bae2ce6c","t":2,"g":0},{"p":"e1a2ad7f89985640688b1c37a180bb0d","k":"2a90d6abe5d6634332e6d14336a2bb489baf4e170e9b59b31fa394d65c681e21","t":2,"g":0},{"p":"3ff98ed5807f3a76f18deec808d265c9","k":"c7d1c2fad189edc26166e910bbc02a4897b2c694c4341e38b9cac49c1e491152","t":2,"g":0},{"p":"c96a983f1ee4ec478be190854a44e080","k":"13cb101e074c0be956ea6bdba051f2fb850345385a41dc30ad1ce9b35dfd132a","t":2,"g":0},{"p":"6650d1d80e002dbbcb690ab936eb2ac3","k":"2a632b2599c80eedcc2330ffeabd74d0256d3632598c7016ddca61f97379b15a","t":2,"g":0},{"p":"811774cb448ad2aa3220f3a833e5f00b","k":"4003ad5429aa115fe77609d9bb20403a2a083e695218a312b3356d07437706b0","t":0,"g":0},{"p":"c17046534098371afef02c4076d31f02","k":"f32b40cb3836bb19a35ced9e5078cd6fbaabf35ffe090540515b707ee8598d0a","t":2,"g":0},{"p":"15ff2274e361b97c313c3e77477e84cd","k":"d6a91119d26e53de884b47d20b44864dcf17d948660f969aebb57b3066c932a4","t":2,"g":0},{"p":"fab76bf7775877729b77a452ab7e9290","k":"bc83e4afbe7fdce261f404a5d943066013ff8f6f62deac9e9bdaf97c478e820d","t":0,"g":1},{"p":"d95c11f90b1ba12a9f9485fc8aa563d6","k":"ba86cacb2657fe6a300cd6d9b2abf281d38981a60e854069b054d7d287ab648e","t":2,"g":1},{"p":"4961b9ebd9a81c253a96403d430517bf","k":"f27400920182a83feda1582260449008225109bd4982b84e48966fcaf77c0eee","t":2,"g":0},{"p":"0b17fd85115049e1994b91af251b4a96","k":"4ed6cd81e0f0d118d1cf60e0d2c0e9cbdad347a6b44c9f72194926d99492cc9f","t":2,"g":0},{"p":"bc8b4d364ed744699f55fc4ab8dbfe8f","k":"1306137dac8b5a81cdeafb29ffbc1489efc194a8445f38bf72e53bdae3a8dba7","t":2,"g":0},{"p":"badaf0817dcde00fd18e5b792251cff1","k":"5c9b81dd3edb3a34b03dcc267c190649f06d5f4ea7e61fb30896b826e0c15a11","t":2,"g":0},{"p":"7ca05cbb81bf8762b70f791ef0a7e0c1","k":"0f890330cf1f29627c043e22803bd593dc71a5d816b5a6995ab4cd370eeb5262","t":2,"g":0},{"p":"efc67f4a8809cc40a7b43fbff5b8c62e","k":"7f474e356af59c1cc62ada056f80619ee4b34325af895fb1760d542b351f9f9f","t":2,"g":0},{"p":"c02804046990d5c07ec69f330cc5a994","k":"8ee2e2a75c0b53bfb1237640c7b50a8c37c906515f323537f2b6874fd6b4977a","t":2,"g":0},{"p":"a87d75a1ddd4c2664dce9eb9f12429e2","k":"779078bb51f3f2bf381860bd6b6dca4f5c865c6789ecc7b8d8a00817ca559da1","t":2,"g":0},{"p":"7dd5736fbf3ee25113a669748a8e9acd","k":"29d19bb004cdc6a5cc9627b70bbfacd5a2625aa91e74e51f1436657cf5c84014","t":2,"g":0},{"p":"89f8b5e6058b9237c7623a6204f1763f","k":"19d8aa2f06d49490944848509312aa72c91cfcc2e87d8978c8b45c35781f255b","t":2,"g":0},{"p":"9d739cf4468f21a6968112288482a993","k":"5e7e03fa7f5836993ee0f9ce0a643aed821278aee908108be4fce913428e0812","t":2,"g":0},{"p":"9f5589b3d94afd2ebfadd07015a9a7cc","k":"50e5bc4c2dfab55bf624c4d03757a97765807075e6de1248cffd696d55465ada","t":2,"g":0},{"p":"b6920a1e99abcce97390a8d2f0894d8f","k":"ea1d54c89d246c216a1caab367b9447d739fe4265ba9b4d0fa6a9a17ad7a2698","t":2,"g":0},{"p":"b495d857f092acc14230bcdfcd3d9ae7","k":"5b6648699a66a5a83d6f4100003de6b38f8b685b3ad40303aeb9b1b7cc892d8f","t":2,"g":0},{"p":"aaaaa317cd99836b08320df6a8fdb8bf","k":"958383329257c8b9b6d0dd35fa794681b07cc111de3dcf3685dac4a84aa744ce","t":2,"g":1},{"p":"25b5a2bcd8032e457dddd0cf36192a16","k":"d9271d68c4c33374f6c272cb03c96430d4f45220942fc7706f4cd739e85f9db2","t":2,"g":0},{"p":"51cb009996c179b0feb692fb0452ddb8","k":"c4ec84a2c850e7419639a410a725df6730e983ecbb804f3fe30b54e1caae8f90","t":2,"g":1},{"p":"d7222523145da9142dcac502c4357136","k":"284fe00e87a52239c35ea2d7b0b222e451eaf58d07f96b5b7558eb8084f11ff2","t":2,"g":0},{"p":"578e3c83506c6883a1bc9fbdd7f5abc1","k":"84e95c41c56f2d6d0fd1b258474076e0f3d9031c7561a708cddaf5fe3c7b3835","t":2,"g":0},{"p":"9463a823b46adfd4bd5c57d7ba29ae7c","k":"7e1b49b813d5efd0a46e77ff33ed577855484d9141e9bbb47c95192a3a8f903e","t":2,"g":0},{"p":"96eb996d86fe1e995cfb2f2ab3f943aa","k":"baada56b2c0b4297b2aaae0c855a14b624b12c9710339b6bc3885ed9583de051","t":2,"g":0},{"p":"87fc731dd94b6861c35fda77a16ac673","k":"e6d3b6c2c32ab4307b916c5179026e4ed56f25c904590db3f19a0e0b7e87d649","t":2,"g":0},{"p":"e8b5614ef6596680f0e5990bd7198194","k":"5db53489fca49b56473dbf605a77303787133678280b7418aae12e92412ebab7","t":2,"g":0},{"p":"f67e92862cdbfe39f2019c52f85abdc8","k":"72b12683f63c7ac1a112ea44c3cd8ab4683868f39d72658c06387e9540fa3987","t":2,"g":1},{"p":"bc212fbd69a681c5cb1370cb08824795","k":"8683c0cc9847454626be90b1a38aface96ca805f3ba7d736d736b546acd42c1e","t":2,"g":0},{"p":"0c19bcc97e44f4fb16f65abe1f7c0dba","k":"21b3b9dd1c21768371d7c35fc3f7c7d87347eb5d533be8baa959e1f5d4f5b78b","t":2,"g":0},{"p":"dcdfda61507143b3eaec800abdfd15cd","k":"4f2fca6194f4fc328bd5ef3140e4b72357196e15ccd1b4b879f898a1ff099471","t":2,"g":1},{"p":"0b58818bb53eaa1ba4582e4d0c508bd6","k":"21aac17a07ab8c2b60d0d9b4acaf1c5c86050aef8d4a1dfc641b4fcfa9b86f82","t":2,"g":0},{"p":"cb981404434c7b1d63f755d675c45d0e","k":"dc8ac0aabfbae9f199f5d63e4a8de0d334157fd78bcc26f5e33c09ee678fd8be","t":2,"g":0},{"p":"902e9c43fb1dfe9cf40be43961168baf","k":"2f8825901d239ff4e4de1a2f1ceb780ed65e676a7977cd9717cdb83016cdc9ec","t":2,"g":0},{"p":"e269980a9b88e83ac801d2d2a17e6f79","k":"e456ada10e667c959ab0ff354fd71a99341f46cb9079eb4881cdbdc3b6018a08","t":2,"g":0},{"p":"9cc3af2a0ea6ce75e9216e891db379a5","k":"84732737105d52f2fa723b61a7d92d876a198b9b7597d7cd4380bdde92e58549","t":2,"g":1},{"p":"9bf07c7a4911b49b0e870bea196395cc","k":"86489466535028e4fed0045c06ec95f241cb87839dd71cc0bb7714677e5e8acc","t":0,"g":0},{"p":"603f355df286ba1f2a3b5809c1bb21cc","k":"6d1d1746c4617b059b0c009c824fc915a0261c67e2a509c0c4da5d4353913c6c","t":2,"g":0},{"p":"a1896720fcbba2d6cfcd6099bdfed6fc","k":"a9a017fc4c29c4b6e9ffa4d88632da3cae9c9990655e92773b7b909186801bd8","t":2,"g":0},{"p":"f7c943e31709d842f1bffd0d15d70f8c","k":"ae691fc3e228439b24d2560ad94b548903fcd696bd547b4c3af076bd18cf8817","t":2,"g":1},{"p":"962ab765c1443a520517cae8ec008083","k":"5da2b4502011ba930738e5da62878acb8143dbe3250cd37876fbce4db819b7fe","t":2,"g":0},{"p":"6f23a0a81f1042b42dd9d6d38885a00a","k":"220a7e1009a535b67bcb4cff7a307d7e636201ddaba884d8bcf61c3fa9994e60","t":2,"g":0},{"p":"667938c442ef2189b70dd75f7a020346","k":"a5d88a0ad75d0797ea32a0cf8a9a9421722fceb098a4195df3a499d716666666","t":2,"g":0},{"p":"adb1ec1ac55502fedafaca0f3c641fc3","k":"cf099f4dbefde816ecf7cdc00f58395c63ab3375a0c9a4813b9e705669750ae3","t":2,"g":1},{"p":"4e0cf50a67e12e97342a1754e02f0aef","k":"ca97af3c77b4370626784891875e7b3106d6fa7a1ad587900a7713578c2be978","t":2,"g":0},{"p":"f2f6d60b7edc5170f46ab69519076725","k":"e687ac89ab7f165253e2b73eb3079fa82ff0c06712467819e37c0338df7e6e07","t":2,"g":0},{"p":"51b5a829033539e36355fd61792e9b94","k":"2b6e4f3f12ca35301e9c73be62b98dc5817b4848ad33cbed11abb42f145d97c6","t":2,"g":0},{"p":"2772b2db65e9dbaf33dde6b2e16883f3","k":"ed53b1337013abd4a76d64660a7091eec9c63945c3e244591783b78e2193685e","t":2,"g":0},{"p":"dc458d39e0826a2db73af2ebed1d96b6","k":"9a4651fe91348865d251baa4ba5d7c279d51ee492f17fc5cec04601c373be738","t":2,"g":0},{"p":"d0b39e47113d54a8503cc3b7ff9d2285","k":"09b6b4fb4c750f9159dc8990c8f1d4d73be06495e3b939fd8a0371757d303658","t":2,"g":0},{"p":"18c07e24ba44360e18d9a8044c07637f","k":"14ece1bf46b220565c8cd16061967eeef713ecabf86c5a1977698da1df68137a","t":2,"g":0},{"p":"93f877b765ae9a33fe5d80329b40aa37","k":"92ca29f7f7f66f1823a354ff4dd315d569db754e432b6f9e129e76cf68a1375d","t":2,"g":1},{"p":"6143d6d6b425880374d8b74166328de3","k":"d84a2ef7f51d68206ac22e0b90b9b78e6373409aa8fc9e4ed98dc07e7626455b","t":2,"g":0},{"p":"52ce5f499f16b5c77f51ef1196211793","k":"b0c56c08b1b637075deddbd0fecdd16c8e8263e213d8f2e0e6a677d6fe2d2e87","t":2,"g":0},{"p":"57e5cb8d935a3b0021850bcd1a5ca582","k":"81a94c68559c24925b1b074a9f949c8529a8de2b78a7d0a6e247ae8ba907e0f1","t":2,"g":0},{"p":"fbe7bc0e57cdab0addb873e064d40969","k":"7d7bf30349eca86484c9087f2110b02778d8629d04cadac855dd5c0bd84ca53c","t":2,"g":0},{"p":"056df94c9355a7ea142aca793dce2769","k":"11a8c1e92254ff7101563d0958cb98abe68204aedbae969d077fb5c2f5cabcb2","t":2,"g":0},{"p":"965023fb2570ae6cd092434c0c92ce99","k":"ae9176cf398a286d3caaefb6787b4a7b2393d41bca06711a3ba8841322b7fceb","t":2,"g":1},{"p":"5e7cb45ab2ff4bdfe71ca6ae1e153ed4","k":"dee48a3ec519b8ec5e94b60170942f7508c7e5c528ef324926f05d3ee10b181a","t":2,"g":0},{"p":"0196836763bf6cb737d888feacda592a","k":"883b4fcc190fc03657195441945d2600711e84a1e73413fa841610eff643a8d6","t":2,"g":1},{"p":"ca3f68154f997c845e353c9ca8584108","k":"5c390ef2edeb34695296b63ad6b87bcfcef48b0836efb61056cdfde6d04c8f26","t":2,"g":1},{"p":"e81ee08857cb0c4745ef7c28a082342a","k":"651240b925aea36189af205400b15c560246a069bff789528a8091a0405fe0ff","t":2,"g":0},{"p":"cc3de42909ee97e7edef656453cbd408","k":"61a66c735ec474515bfc8bd3d486bc111279f2a79384203e1b3c0302aa49a616","t":0,"g":0},{"p":"93a33e6396ce6ba3967492d3a10e8b6c","k":"6831c9dd48ea259883bd72580b3196df414ca3f9bf5ea7b3b196c95a68d08de3","t":2,"g":0},{"p":"e657643a5c8158e324d736291257f157","k":"b2e2c8caf2b61b4923ca7a451084dc1f7073a475fd2b5762deace43a7ba81a52","t":2,"g":1},{"p":"a26d39a98a9eb89d9991982cf98ed325","k":"7c836e5d89b0b219b5bf5e9e374abebd0b3e3d63c5afaa40900d1fd710d28ec0","t":2,"g":0},{"p":"476dcbdeb6426541d7b2e913720441a8","k":"43051a74feaa7f8e3dfa0eab862413cfe3c1b9a9de7a1a7da616cdf47e5f9ecd","t":2,"g":0},{"p":"a95d6963d2fcd2eba6bd34d789c73b2d","k":"8cdddb3220bd93fc1f9b87c73e356b774cf94daa7a61775ad127db2b2e8d117c","t":2,"g":1},{"p":"a36032d02fba005b3bff2fe3574339e7","k":"e1878ee4d27e51ce027e471b4a34562929be7ab936b51a2c4c3cdde02ba16f85","t":2,"g":1},{"p":"00c705732c4beb7c54865c735669c534","k":"9c931a185c7a59491a83f1059cc0c6d742a174070b9b8d965841d13b9ac629b0","t":2,"g":0},{"p":"edda20b1400d3212f968d48977895f2e","k":"fdc5c794d6af235a6ced05605c421448aa95109243c00b2cb4e004f7900d8aef","t":2,"g":1},{"p":"be19a13fe4a298d6184440dbdb6b2a83","k":"a378161c3a1130d9ac5f72090554764be6f4c4974a72a1fb07a5ba306f35c070","t":1,"g":0},{"p":"31d1c414b7503652bd8fa4ae55f070d4","k":"f8d2520fa7eaad97b863dd1e3357f5e28d9b593fdbe2613056baeef422198caf","t":2,"g":0},{"p":"d829105b7d933d913b383fbe7ff4becd","k":"2cfabe34667d0dd0c08217a0c4ebf28dbb2a16287c1d4ea9cc9579a895b106d8","t":2,"g":0},{"p":"de7e84980898cdc4ed9cc966ba79c562","k":"c062590412f3f812002863b59c8782684d1034fefc9b9b7efcbc8fcfcf9fcf85","t":2,"g":0},{"p":"4d4eb05ac7c21f955abe2bad31d8f84b","k":"8b05bbc8969325639ba2470b7305c0ba776e36b8e079f0e8656578fcab1c8180","t":2,"g":0},{"p":"b00589e06287ff189fa8eae9c09ecb69","k":"fb9394cde1177c474db0e5c83cdf774932ba102df44ab98d225b8c5484054e14","t":2,"g":0},{"p":"5be35b4efca132e152054b57c858500e","k":"10235165f55a72eb501dca4d5bb06ffddc6710ff8cee837dcc33373824483f09","t":2,"g":0},{"p":"674c062d79a9eeae20e17ba2c50e71d3","k":"dad7d6b3f68a50232ab7f1b40764dcff650afb5511c6c5d5284ecf475715fad1","t":2,"g":0},{"p":"93a921de43a5fa94c45bcd24c7556012","k":"cf690d23b95a3aaa61e3278c4cbaf63558857d8972ac394afaae40be74228b9a","t":2,"g":0},{"p":"6dcb24277a9eb1acd3f53e0ce52131d8","k":"01e1fef58f2bb6963f6194005333d2a95a2d1c783f2b7bb7a94cb878796cead4","t":2,"g":1},{"p":"0203c055025ea164198c634802e5b3e9","k":"641cb0b07f3e177558d7453f0e2e089cb1efc56e5621e9d732a8b9b2cf699bdb","t":2,"g":0},{"p":"6f0a48214054865ec6453da3e1296ae1","k":"c4de1ba104f17159faa89e05c2ff6b07acf1da414abf12cd6eb2f7704f7b36b9","t":2,"g":0},{"p":"3e89a8fae636266a8d6c1b3f4ac3ce74","k":"be29e5f53ddbfded13634c18dff4d8c8c7faf5ff68876d71f823179ced3efefa","t":0,"g":0},{"p":"eea0e6f29d297784b4522015c81b4a4c","k":"5f683ba7021f4a2e7839ad59852179b718464074bacf3ed6374002c2d87c9591","t":2,"g":0},{"p":"b0cbd0a63bf3c5f136590015df2c159d","k":"ae1cf2defd19542c349b6620783f5bbeac71eeb1531a8c3cc875140ca94a430f","t":2,"g":0},{"p":"6d24164af8ceb69e78abd7166f775b2f","k":"d507cc5ee1986ed6ed7704a9575b0c73f07e24e2ff5a1e98d1f6a83fc49e7a7b","t":2,"g":0},{"p":"51e4ffe8588eba45f26a744435f9dec6","k":"9c18f8b63e32ff5b46f2251865805130a5141cf7481f511bbd37cd161b0ca0fe","t":2,"g":0},{"p":"e151a441858b8641b9ff26147da18e23","k":"aa60734d6ae2d2d2c18901f27b4b50bf98712b4cc4e5501cdd0f1cbd25529473","t":2,"g":0},{"p":"05267bab5e2a3ec977513bd041265182","k":"023faac278ab6c651acdc9c3d6714d0a990860e95c4363016c126a8c6949d388","t":2,"g":0},{"p":"e78a424e25407b8ade1870d6a55f9670","k":"5d0dc3ab831ddf7dc5b2bf5eca42134270011094ff7062c029817cbfbbf2c907","t":2,"g":0},{"p":"44b33ee0659ded1945ca1116b900aa2a","k":"791a653892bcffe58a6d9bc6d7a5da9436d58392ef3d40549386216432705e63","t":2,"g":0},{"p":"e38ea4737a3ae58ec46123f83e4537b2","k":"014034adc699c0c337b039cdbddd24a2e50b4f860b44445b1a33497a671e0327","t":2,"g":1},{"p":"6110eed39997cf9e39d304cf7103c95c","k":"8b01b41769738f0e4c0ba0fa32dd1967953d0e1d0b9b4422b5da3d43024c8204","t":2,"g":0},{"p":"5a9a66d13abefd67844e57e130cecdb4","k":"1bf11d24b967150fa3d6a1b58561aaa2314897578166b3a1a73cfac054d76c05","t":2,"g":0},{"p":"7dd0eaa93654b85dcd6e504d37be9936","k":"d77f9858374a0a537f112f965b9e7bb8e8455768fdbb86863877ad600802801f","t":2,"g":0},{"p":"c25872deaca51323b80f57a10905278d","k":"1de6a091f44082976a788d4919e8b0478724955bbc49e79e8d17a29f62b7ddf1","t":2,"g":0},{"p":"973c7604ba0d745c8cd1b7b7fed32938","k":"5ae1a242fc224f39e022143d6b7800272d54aed4b7b7f275bf511e2bcacc0c09","t":2,"g":1},{"p":"b763f7df6adc2546ab69a05a491afdda","k":"bf3be04372dcf8b15d8756b2c28352e86a5ed5ebca52e933e287c8e4f9f640b2","t":2,"g":0},{"p":"a1aea8f77d9d0444b6e32c03c292ebdb","k":"acc900c7fa446f340c89567baf204919baad2c0657d515e1850ff04988879999","t":2,"g":0},{"p":"52f6a3cd22cd3536828a848be3e61c08","k":"3aba3fb509751355229debc27c3ffd731f81c4bd7371229dde26f82adcaf9bd6","t":2,"g":1},{"p":"f1489e76b0ce0b77558262777dc8acf7","k":"8cff4988688d65f6af8e3c5a67302b6b00e21fd38a68b404ff2cb37311c03cef","t":2,"g":0},{"p":"94ddeafcdfef6fb632be335f7fd41638","k":"683d438dbaba5c9887406bad2d6d3c5173f05ae836ac2460446f1ec5b1d3cd02","t":2,"g":0},{"p":"e10682fa7062047b6f0c0c70edb5d733","k":"576c5f838bc784cea97ece71070072781159ae7fd8825eab9d775f04727e3246","t":2,"g":1},{"p":"6f4237d3781f9d31e75f8f7b0b3f9220","k":"d364db7596140fae3618f36f41411478bc2b96af4e78df373a83306b5f4c7af1","t":2,"g":0},{"p":"e750835f223a2b3e035794baf1d2041a","k":"a25e6f4d236a73f3083cafdf9e0ea31a72aa3e3cc0c1ae812aa9568b411de523","t":2,"g":0},{"p":"de462baba3f4d8f405e1bf98334eadcd","k":"7e0124cfcc3012a769da4709f6a003e2587d8574e2a8ba2ec2f0fd24defa777e","t":2,"g":0},{"p":"275ceafe054da3e2831ead6e2675474b","k":"553f14a7f0bb0245f041ee0a89b8c3d75e3379b926ce5e5d94323107273415c5","t":2,"g":1},{"p":"ac877ce790dcc6b82ff8ebfaeae03343","k":"413a6d490489d80ea61cbe8b5a6944491b553966b933ccf286e3ae14787bb4d9","t":2,"g":0},{"p":"4cd53d9cae8c30564cd176c5d0c12d62","k":"8ad1b93ad89225bf0844e5947a5c7d2d736b4be84c3160d725cc572b6e030845","t":2,"g":0},{"p":"79d032e4490c3044c26efc8af593a9c8","k":"a6fd04acbf9f842930d7850257b5c7d5d94de76ce22b079d748dd86a2509266e","t":2,"g":0},{"p":"d6a708b0844a7af9e97c52ca3a239e23","k":"4e203e38eb77cb29f47f5547773c92664d031ee1ebc2ba585c0c5b882c21b1dc","t":2,"g":0},{"p":"c011a1ff7e5596e27bb6e927ceed5f38","k":"c171851b4836b0cb0a4c26d03447efbbbe6745e8ebdb427311244bef2c4d593a","t":2,"g":0},{"p":"7964cc9d2f6a2be3df8fa700e4a7e7a4","k":"b7de09b3f5b57883e83f629b530926afa0576c426922a180da1259f682b6559c","t":2,"g":0},{"p":"23c5be66c28e13d1af355402d2154335","k":"4adec7dd37664bf9bad6546436b045db58d0f1aef1927157447fe7bf7a45cf57","t":1,"g":1},{"p":"95a90b726525b46ccd813a9489fce792","k":"d9963b8a5a56bfa9b3c98257618d4c8b3efb4c9726a3d1750c121c20e42a5443","t":2,"g":0},{"p":"0376784c047bc7d2c987e846f4c2a229","k":"9602785982039a15f9f6893aa742129f7a351c5214721440546af973b5976f09","t":2,"g":1},{"p":"abb67fcf3796493e008f407c498165e3","k":"7f107aa82e58da7b976ef04bf2d98fda1eedc0510be1c575e0307017d0a8655a","t":2,"g":0},{"p":"07310ce05146ccb73ec21c59870d4dad","k":"e696c7de07ac346e6de0040537d419afbace4b09ba3737cdd4493e8b2072ae5b","t":2,"g":0},{"p":"038ef1c518071fe3cb447e4a0b54be1a","k":"faa5201d6fac883159adf96194238dc85c4f703356cca6dc017b71c1e2f7bcb3","t":2,"g":0},{"p":"ffef845dde018a85eca5b7d22cde8fe9","k":"56808ff29dcb6f13a13525cc258a7d7d79f51884895a7dedf144415598992626","t":0,"g":0},{"p":"45d113e5cda281e8efdcff8c70332416","k":"88810aa1396a05a32cc6ead9b8e888c58fc093157f506e2f9a539ab2976824ea","t":2,"g":0},{"p":"517c23cbde00a76eb0ddd9c6c4774fa1","k":"ec0510f874f92658f067b3531f3be1060ed3d9db6a51688761b6426c71948929","t":2,"g":0},{"p":"1f594a77784c59cbbd70c83435a89fbb","k":"3f18c388f9538670eb1f7f17e9cc84fd1b1d48c70b07c5369857804b4acfd247","t":2,"g":1},{"p":"198406df07981cc4858cffccbcb6b889","k":"efc0c2f50f66e147651f18da20f7ab697b006f340e495f6ed101fa4b180160e9","t":2,"g":0},{"p":"eb9008952bca306b71071b0097234ff8","k":"f3ff0ae28798c8d1cbbec5d7d1718629c63f47dd6b4d23591bc12c5381000c16","t":2,"g":1},{"p":"676ab44827c95b32ef0a7b3e4e7864c7","k":"3fd515eee0b82640ceae3d044b22bcf3e61573dac6f48a4e6273c9c7b1e6ef54","t":2,"g":0},{"p":"2cbe7ecbf503834a1111670ef34e600a","k":"98aa7bf257b5ec509aab07b0ef317be0ad47accfb51793409d2e9e2b8a9a3540","t":2,"g":1},{"p":"13e371e3eddd5543d0f15f0c11684445","k":"cacea8b62f1c6beb14eff8aebda3c5fce1f33598af5e9919d283b3925cece01d","t":2,"g":0},{"p":"01cb47eabdea2d618c1ec51dc4b1b1ec","k":"7527c16a6b276b0170765a99730d5403bdbd895ca08dbc9969192c96ea990595","t":2,"g":0},{"p":"8f50903a652cb4ad96ef0a4f09aa841a","k":"1e9cf14c75a16fa2ff220d78b2cf071a1c62a22da196533353d06a08518af40c","t":2,"g":1},{"p":"12dd0ddc428e2b6b21e66e00727b2a1e","k":"e24102e7bedb6d1d8687bacfde61994f61a2ed59050924b8320c95b55e02316a","t":2,"g":0},{"p":"f40fec1fdfb508a6416b1c74b2164f21","k":"f4c10f58df12afacb8dcf5b07317d280cd223d8c639d66a615c4ca2ef830e456","t":2,"g":0},{"p":"19bd723b093181096f707b01eebdc2a2","k":"20158f55ba62862b0fd32318ecf276976b9d740dae1a774e92a0758e82296f33","t":2,"g":0},{"p":"60b5bd4320c120d41d231db54eb63a99","k":"9e1aa3617f8578d508e11f24725dffddff6cf9cb76cfe466cd7b8b51c62ebe30","t":2,"g":0},{"p":"049d9fb6bc63a786065bae9e0a647f6d","k":"c9835ecaa63d169662ee96eca5cee464c5810e7cfae7231e15a46ee59a46219e","t":2,"g":0}]};
+/* GEHEIM-ENDE */
+
+// ==== KERN-START (wird auch von werkzeug/antwort-setzen.mjs benutzt) ====
+const KERN = (() => {
+  // --- SHA-256 (eigene Umsetzung, damit es überall ohne Extras läuft) ---
+  const K = new Uint32Array([
+    0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+    0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+    0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+    0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+    0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+    0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+    0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
+  ]);
+  const START = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
+  const ror = (x, n) => (x >>> n) | (x << (32 - n));
+
+  function sha256(daten) {
+    const laenge = daten.length;
+    const gesamt = ((laenge + 9 + 63) >> 6) << 6;
+    const m = new Uint8Array(gesamt);
+    m.set(daten);
+    m[laenge] = 0x80;
+    const dv = new DataView(m.buffer);
+    const bits = laenge * 8;
+    dv.setUint32(gesamt - 8, Math.floor(bits / 0x100000000));
+    dv.setUint32(gesamt - 4, bits >>> 0);
+
+    const H = new Uint32Array(START);
+    const W = new Uint32Array(64);
+    for (let off = 0; off < gesamt; off += 64) {
+      for (let t = 0; t < 16; t++) W[t] = dv.getUint32(off + t * 4);
+      for (let t = 16; t < 64; t++) {
+        const a = W[t - 15], b = W[t - 2];
+        const s0 = ror(a, 7) ^ ror(a, 18) ^ (a >>> 3);
+        const s1 = ror(b, 17) ^ ror(b, 19) ^ (b >>> 10);
+        W[t] = W[t - 16] + s0 + W[t - 7] + s1;
+      }
+      let a = H[0], b = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
+      for (let t = 0; t < 64; t++) {
+        const S1 = ror(e, 6) ^ ror(e, 11) ^ ror(e, 25);
+        const ch = (e & f) ^ (~e & g);
+        const t1 = (h + S1 + ch + K[t] + W[t]) | 0;
+        const S0 = ror(a, 2) ^ ror(a, 13) ^ ror(a, 22);
+        const maj = (a & b) ^ (a & c) ^ (b & c);
+        const t2 = (S0 + maj) | 0;
+        h = g; g = f; f = e; e = (d + t1) | 0;
+        d = c; c = b; b = a; a = (t1 + t2) | 0;
+      }
+      H[0] += a; H[1] += b; H[2] += c; H[3] += d;
+      H[4] += e; H[5] += f; H[6] += g; H[7] += h;
+    }
+    const aus = new Uint8Array(32);
+    const adv = new DataView(aus.buffer);
+    for (let i = 0; i < 8; i++) adv.setUint32(i * 4, H[i]);
+    return aus;
+  }
+
+  const kodierer = new TextEncoder();
+  const dekodierer = new TextDecoder();
+  const hex = (bytes) => Array.from(bytes, (x) => x.toString(16).padStart(2, "0")).join("");
+  const unhex = (s) => {
+    const aus = new Uint8Array(s.length / 2);
+    for (let i = 0; i < aus.length; i++) aus[i] = parseInt(s.substr(i * 2, 2), 16);
+    return aus;
+  };
+
+  // --- Antworten vergleichbar machen ---
+  // Groß/klein, Umlaute (ä = ae = a), ß = ss, Akzente, Leer- und Satzzeichen
+  // spielen keine Rolle.
+  function worte(text) {
+    return String(text)
+      .normalize("NFC")
+      .toLowerCase()
+      .replace(/ß/g, "ss")
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
+      .split(/[^\p{L}\p{N}]+/u)
+      .filter(Boolean);
+  }
+  const falte = (s) => s.replace(/ae/g, "a").replace(/oe/g, "o").replace(/ue/g, "u");
+
+  // Die Lösung zählt auch, wenn sie in einer kurzen Antwort steckt,
+  // z. B. „Wir waren auf dem Weihnachtsmarkt“ für „Weihnachtsmarkt“.
+  const MAX_WORTE = 8;
+  function kandidaten(text) {
+    const w = worte(text);
+    if (!w.length) return [];
+    const menge = new Set([falte(w.join(""))]);
+    if (w.length <= MAX_WORTE) {
+      for (let i = 0; i < w.length; i++) {
+        for (let j = i + 1; j <= w.length; j++) menge.add(falte(w.slice(i, j).join("")));
+      }
+    }
+    return [...menge];
+  }
+  const schluessel = (antwort) => falte(worte(antwort).join(""));
+
+  // --- Tippfehler-Toleranz ---
+  // In der Seite stehen nur Prüfwerte von Varianten der Lösung, bei denen ein
+  // paar Buchstaben fehlen. Hat die Eingabe eine gemeinsame Variante mit der
+  // Lösung, zählt sie. So gehen fehlende, zusätzliche, vertauschte oder falsche
+  // Buchstaben durch (z. B. „Weihnachtsmakt“ für „Weihnachtsmarkt“).
+  const toleranz = (k) => (k.length >= 9 ? 2 : k.length >= 5 ? 1 : 0);
+  const MAX_TOLERANZ = 2;
+  const MAX_LAENGE_TOLERANZ = 32;
+
+  // [ {s}, {s ohne 1 Buchstaben}, {s ohne 2 Buchstaben}, … ]
+  function loeschungen(s, n) {
+    const ebenen = [new Set([s])];
+    for (let e = 1; e <= n; e++) {
+      const naechste = new Set();
+      for (const v of ebenen[e - 1]) {
+        if (v.length < 2) continue;
+        for (let i = 0; i < v.length; i++) naechste.add(v.slice(0, i) + v.slice(i + 1));
+      }
+      ebenen.push(naechste);
+    }
+    return ebenen;
+  }
+
+  // Alle Varianten der Eingabe → kleinste Zahl gelöschter Buchstaben.
+  function eingabeVarianten(eingabe) {
+    const ebeneVon = new Map();
+    for (const k of kandidaten(eingabe)) {
+      const ebenen = k.length <= MAX_LAENGE_TOLERANZ ? loeschungen(k, MAX_TOLERANZ) : [new Set([k])];
+      ebenen.forEach((menge, e) => {
+        for (const v of menge) {
+          const bisher = ebeneVon.get(v);
+          if (bisher === undefined || bisher > e) ebeneVon.set(v, e);
+        }
+      });
+    }
+    return ebeneVon;
+  }
+
+  // --- Prüfen und Ver-/Entschlüsseln ---
+  const pruefwert = (salz, v) => hex(sha256(kodierer.encode("pruefen|" + salz + "|" + v)).subarray(0, 16));
+
+  function strom(salz, k, laenge) {
+    const aus = new Uint8Array(laenge);
+    for (let block = 0, pos = 0; pos < laenge; block++) {
+      const h = sha256(kodierer.encode("schluessel|" + salz + "|" + k + "|" + block));
+      for (let i = 0; i < 32 && pos < laenge; i++) aus[pos++] = h[i];
+    }
+    return aus;
+  }
+  function verschluesseln(salz, k, text) {
+    const daten = kodierer.encode(text);
+    const s = strom(salz, k, daten.length);
+    for (let i = 0; i < daten.length; i++) daten[i] ^= s[i];
+    return hex(daten);
+  }
+  function entschluesseln(salz, k, h) {
+    const daten = unhex(h);
+    const s = strom(salz, k, daten.length);
+    for (let i = 0; i < daten.length; i++) daten[i] ^= s[i];
+    return dekodierer.decode(daten);
+  }
+
+  // Ergebnis: null (falsch) oder { art: "richtig" | "fast", text }.
+  function pruefe(eingabe, geheim) {
+    const nachPruefwert = new Map();
+    for (const [v, e] of eingabeVarianten(eingabe)) nachPruefwert.set(pruefwert(geheim.salz, v), [v, e]);
+    let bester = null;
+    for (const s of geheim.schluessel) {
+      const treffer = nachPruefwert.get(s.p);
+      if (!treffer || treffer[1] > s.t) continue;
+      const gruppe = geheim.gruppen[s.g];
+      if (!bester || (gruppe.art === "richtig" && bester.gruppe.art !== "richtig")) {
+        bester = { gruppe, v: treffer[0], k: s.k };
+      }
+    }
+    if (!bester) return null;
+    const inhaltsSchluessel = entschluesseln(geheim.salz, bester.v, bester.k);
+    return { art: bester.gruppe.art, text: entschluesseln(geheim.salz, inhaltsSchluessel, bester.gruppe.inhalt) };
+  }
+
+  return { sha256, hex, worte, kandidaten, schluessel, toleranz, loeschungen, pruefwert, verschluesseln, entschluesseln, pruefe };
+})();
+// ==== KERN-ENDE ====
+
+(() => {
+  const E = EINSTELLUNGEN;
+  const $ = (id) => document.getElementById(id);
+  const reduziert = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const HERZ = '<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+
+  // --- Merken (nur auf diesem Gerät; klappt das nicht, geht es auch ohne) ---
+  const praefix = "raetsel:" + (GEHEIM ? GEHEIM.salz : "-") + ":";
+  const speicher = {
+    lesen(k) { try { return localStorage.getItem(praefix + k); } catch (_) { return null; } },
+    schreiben(k, v) { try { localStorage.setItem(praefix + k, v); } catch (_) { /* egal */ } },
+    loeschen() {
+      try { ["geloest", "versuche"].forEach((k) => localStorage.removeItem(praefix + k)); } catch (_) { /* egal */ }
+    },
+  };
+  if (location.hash === "#reset") {
+    speicher.loeschen();
+    try { history.replaceState(null, "", location.pathname + location.search); } catch (_) { /* egal */ }
+  }
+
+  // --- Texte einsetzen ---
+  $("titel").textContent = E.titel;
+  $("einleitung").textContent = E.einleitung;
+  $("antwort").placeholder = E.platzhalter;
+  $("knopf").textContent = E.knopf;
+  $("geloestTitel").textContent = E.geloestTitel;
+  $("fusszeile").textContent = E.fusszeile;
+  if (E.name) { $("fuer").textContent = "Für " + E.name; $("fuer").hidden = false; }
+  if (E.raetsel) { $("raetsel").textContent = E.raetsel; $("raetsel").hidden = false; }
+  if (String(E.tuerchen).trim()) $("tuer").textContent = String(E.tuerchen).trim();
+  else $("tuer").innerHTML = HERZ;
+
+  if (!GEHEIM) {
+    $("rueckmeldung").textContent = "Hier fehlt noch die Lösung (werkzeug/antwort-setzen.mjs).";
+    $("formular").hidden = true;
+    return;
+  }
+  if (GEHEIM.test) {
+    $("testhinweis").textContent = "Vorschau: Die echte Lösung ist noch nicht eingetragen. Zum Ausprobieren tippe „" + GEHEIM.testAntwort + "“ ein.";
+    $("testhinweis").hidden = false;
+  }
+
+  // --- Rätsel-Logik ---
+  const karte = $("karte");
+  const eingabe = $("antwort");
+  const rueckmeldung = $("rueckmeldung");
+  let versuche = parseInt(speicher.lesen("versuche"), 10) || 0;
+  let letzteMeldung = -1;
+  let gezeigteTipps = 0;
+
+  function melde(text, art) {
+    rueckmeldung.classList.remove("neu", "fast");
+    void rueckmeldung.offsetWidth;
+    rueckmeldung.textContent = text;
+    rueckmeldung.classList.add("neu");
+    if (art === "fast") rueckmeldung.classList.add("fast");
+  }
+
+  function wackeln() {
+    karte.classList.remove("wackeln");
+    void karte.offsetWidth;
+    karte.classList.add("wackeln");
+  }
+  karte.addEventListener("animationend", () => karte.classList.remove("wackeln"));
+
+  function tippsZeigen() {
+    const faellig = E.tipps
+      .filter((t) => t && t.text && versuche >= (t.abVersuch || 1))
+      .sort((a, b) => (a.abVersuch || 1) - (b.abVersuch || 1));
+    while (gezeigteTipps < faellig.length) {
+      const box = document.createElement("div");
+      box.className = "tipp";
+      const kopf = document.createElement("strong");
+      kopf.textContent = faellig.length > 1 ? "Tipp " + (gezeigteTipps + 1) : "Kleiner Tipp";
+      box.appendChild(kopf);
+      box.appendChild(document.createTextNode(faellig[gezeigteTipps].text));
+      $("tipps").appendChild(box);
+      gezeigteTipps++;
+    }
+  }
+
+  function geloest(nachricht, frisch) {
+    $("nachricht").textContent = nachricht;
+    karte.hidden = true;
+    $("geloest").hidden = false;
+    $("geloestTitel").focus({ preventScroll: true });
+    if (frisch) konfetti();
+  }
+
+  $("formular").addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    const wert = eingabe.value;
+    if (!KERN.worte(wert).length) {
+      melde(E.leer);
+      wackeln();
+      eingabe.focus();
+      return;
+    }
+    const ergebnis = KERN.pruefe(wert, GEHEIM);
+    if (ergebnis && ergebnis.art === "richtig") {
+      eingabe.blur();
+      speicher.schreiben("geloest", ergebnis.text);
+      geloest(ergebnis.text, true);
+      return;
+    }
+    versuche++;
+    speicher.schreiben("versuche", String(versuche));
+    if (ergebnis) {
+      melde(ergebnis.text, "fast");
+    } else {
+      let i = Math.floor(Math.random() * E.falsch.length);
+      if (E.falsch.length > 1 && i === letzteMeldung) i = (i + 1) % E.falsch.length;
+      letzteMeldung = i;
+      melde(E.falsch[i]);
+      wackeln();
+    }
+    tippsZeigen();
+    eingabe.select();
+  });
+
+  const gemerkt = speicher.lesen("geloest");
+  if (gemerkt) geloest(gemerkt, false);
+  else tippsZeigen();
+
+  // --- Schnee ---
+  (function schnee() {
+    const c = $("schnee");
+    const ctx = c.getContext("2d");
+    if (!ctx) return;
+    let w = 0, h = 0, zuletzt = 0;
+    const flocken = [];
+    const neu = (irgendwo) => ({
+      x: Math.random() * w,
+      y: irgendwo ? Math.random() * h : -8,
+      r: 0.8 + Math.random() * 2.4,
+      v: 0.25 + Math.random() * 0.7,
+      d: Math.random() * Math.PI * 2,
+      a: 0.35 + Math.random() * 0.55,
+    });
+    function groesse() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = c.clientWidth; h = c.clientHeight;
+      c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const anzahl = Math.round(Math.min(130, (w * h) / 8000));
+      while (flocken.length < anzahl) flocken.push(neu(true));
+      flocken.length = anzahl;
+      if (reduziert) zeichnen();
+    }
+    function zeichnen() {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "#fff";
+      for (const f of flocken) {
+        ctx.globalAlpha = f.a;
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+    function schritt(t) {
+      const dt = zuletzt ? Math.min(3, (t - zuletzt) / 16.67) : 1;
+      zuletzt = t;
+      for (const f of flocken) {
+        f.d += 0.012 * dt;
+        f.y += f.v * (0.6 + f.r / 3) * dt;
+        f.x += Math.sin(f.d) * 0.35 * dt;
+        if (f.y > h + 8) Object.assign(f, neu(false));
+        if (f.x > w + 8) f.x = -8; else if (f.x < -8) f.x = w + 8;
+      }
+      zeichnen();
+      requestAnimationFrame(schritt);
+    }
+    window.addEventListener("resize", groesse);
+    groesse();
+    if (!reduziert) requestAnimationFrame(schritt);
+  })();
+
+  // --- Herzen-Konfetti, wenn sie es gelöst hat ---
+  function konfetti() {
+    if (reduziert) return;
+    const c = $("konfetti");
+    const ctx = c.getContext("2d");
+    if (!ctx) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = c.clientWidth, h = c.clientHeight;
+    c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const farben = ["#e0314b", "#ff6f91", "#ffb3c6", "#d6a447", "#f3d27a", "#ffffff"];
+    const teile = [];
+
+    function salve(anzahl, x, y, streuung) {
+      for (let i = 0; i < anzahl; i++) {
+        const winkel = -Math.PI / 2 + (Math.random() - 0.5) * streuung;
+        const tempo = 6 + Math.random() * 10;
+        const z = Math.random();
+        teile.push({
+          x: x + (Math.random() - 0.5) * 30, y,
+          vx: Math.cos(winkel) * tempo, vy: Math.sin(winkel) * tempo,
+          g: 0.2 + Math.random() * 0.08,
+          s: 8 + Math.random() * 10,
+          rot: Math.random() * Math.PI * 2,
+          vr: (Math.random() - 0.5) * 0.2,
+          farbe: farben[Math.floor(Math.random() * farben.length)],
+          form: z < 0.55 ? "herz" : z < 0.8 ? "stern" : "punkt",
+          alter: 0,
+        });
+      }
+    }
+    function herz(s) {
+      const k = s / 2;
+      ctx.beginPath();
+      ctx.moveTo(0, k * 0.9);
+      ctx.bezierCurveTo(-k * 1.7, -k * 0.15, -k * 0.75, -k * 1.45, 0, -k * 0.5);
+      ctx.bezierCurveTo(k * 0.75, -k * 1.45, k * 1.7, -k * 0.15, 0, k * 0.9);
+      ctx.closePath();
+    }
+    function stern(r) {
+      ctx.beginPath();
+      for (let i = 0; i < 10; i++) {
+        const rr = i % 2 ? r * 0.45 : r;
+        const a = -Math.PI / 2 + (i * Math.PI) / 5;
+        ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr);
+      }
+      ctx.closePath();
+    }
+
+    salve(150, w / 2, h * 0.62, Math.PI * 0.8);
+    setTimeout(() => { salve(60, w * 0.15, h, Math.PI * 0.35); salve(60, w * 0.85, h, Math.PI * 0.35); }, 450);
+
+    let zuletzt = 0;
+    function schritt(t) {
+      const dt = zuletzt ? Math.min(3, (t - zuletzt) / 16.67) : 1;
+      zuletzt = t;
+      ctx.clearRect(0, 0, w, h);
+      let lebendig = 0;
+      for (const p of teile) {
+        p.alter += dt;
+        p.vy += p.g * dt;
+        p.vx *= Math.pow(0.985, dt);
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.rot += p.vr * dt;
+        const alpha = Math.min(1, Math.max(0, 1 - (p.alter - 110) / 70));
+        if (alpha <= 0 || p.y > h + 40) continue;
+        lebendig++;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = p.farbe;
+        if (p.form === "herz") herz(p.s);
+        else if (p.form === "stern") stern(p.s * 0.55);
+        else { ctx.beginPath(); ctx.arc(0, 0, p.s * 0.22, 0, Math.PI * 2); }
+        ctx.fill();
+        ctx.restore();
+      }
+      if (lebendig || teile.length < 270) requestAnimationFrame(schritt);
+      else ctx.clearRect(0, 0, w, h);
+    }
+    requestAnimationFrame(schritt);
+  }
+})();
+</script>
+</body>
+</html>
