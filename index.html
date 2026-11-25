@@ -148,8 +148,8 @@
     line-height: 1.5;
     text-align: center;
   }
-  .raetsel .zeile { display: block; text-wrap: balance; }
-  .raetsel .leer { height: .75em; }
+  .zeile { display: block; text-wrap: balance; }
+  .zeile.leer { height: .75em; }
 
   form {
     display: flex;
@@ -221,6 +221,31 @@
     letter-spacing: .1em;
     text-transform: uppercase;
   }
+  .tipp.gedicht {
+    padding: 12px 10px 14px;
+    font-family: "EB Garamond", Georgia, "Times New Roman", serif;
+    font-size: clamp(16px, 4.6vw, 18px);
+    font-style: italic;
+    font-weight: 500;
+    text-align: center;
+  }
+  .tipp.gedicht strong {
+    margin-bottom: 4px;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-style: normal;
+  }
+
+  .tipp-knopf {
+    margin-top: 12px;
+    padding: 9px 18px;
+    border: 2px solid var(--papier-rand);
+    background: transparent;
+    box-shadow: none;
+    color: #86601c;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .tipp-knopf:hover { filter: none; background: #fff3dc; }
 
   .fussnote {
     margin: 14px 0 0;
@@ -310,6 +335,8 @@
              autocapitalize="off" spellcheck="false" enterkeyhint="go">
       <button type="submit" id="knopf"></button>
     </form>
+    <button type="button" class="tipp-knopf" id="tippKnopf" hidden></button>
+    <div class="tipp gedicht" id="tippText" hidden></div>
 
     <p class="rueckmeldung" id="rueckmeldung" role="status" aria-live="polite"></p>
     <div id="tipps"></div>
@@ -349,10 +376,17 @@ const EINSTELLUNGEN = {
     "Am See zu zweit, ganz ungestört,",
     "haben wir dem Abend zugehört.",
     "Die Sonne ging, die Nacht brach an,",
-    "bis ich einen neuen Gast an mir empfangen kann.",
+    "kam ungeladen noch ein Gast heran.",
     "",
     "Wer war der Gast? Tipp die Antwort ein,",
     "und deine Überraschung wird bald dein!",
+  ].join("\n"),
+
+  // Tipp zum Aufklappen (Knopf unter „Antwort prüfen“). Leer lassen = kein Knopf.
+  tippKnopf: "💡 Tipp anzeigen",
+  tipp: [
+    "Er sprach kein Wort, war still und leise,",
+    "und schlich heran auf seine Weise.",
   ].join("\n"),
 
   platzhalter: "Deine Antwort …",
@@ -372,7 +406,7 @@ const EINSTELLUNGEN = {
   tipps: [],
 
   // Kleiner Hinweis ganz unten in der Karte. Leer lassen = nichts.
-  fussnote: "Tipp: Wenn’s dir jetzt nicht einfällt, kannst du es auch wann anders eingeben.",
+  fussnote: "Wenn’s dir jetzt nicht einfällt, kannst du es auch wann anders eingeben.",
 
   geloestTitel: "Richtig!",
   fusszeile: "Mit ❤️ für dich gemacht",
@@ -596,14 +630,28 @@ const KERN = (() => {
   $("fusszeile").textContent = E.fusszeile;
   if (E.fussnote) { $("fussnote").textContent = E.fussnote; $("fussnote").hidden = false; }
   if (E.name) { $("fuer").textContent = "Für " + E.name; $("fuer").hidden = false; }
-  if (E.raetsel) {
-    for (const zeile of String(E.raetsel).split("\n")) {
+  function zeilenEinsetzen(ziel, text) {
+    for (const zeile of String(text).split("\n")) {
       const z = document.createElement("span");
       z.className = zeile.trim() ? "zeile" : "zeile leer";
       z.textContent = zeile;
-      $("raetsel").appendChild(z);
+      ziel.appendChild(z);
     }
-    $("raetsel").hidden = false;
+  }
+  if (E.raetsel) { zeilenEinsetzen($("raetsel"), E.raetsel); $("raetsel").hidden = false; }
+  if (E.tipp) {
+    const knopf = $("tippKnopf");
+    const kasten = $("tippText");
+    const kopf = document.createElement("strong");
+    kopf.textContent = "Kleiner Tipp";
+    kasten.appendChild(kopf);
+    zeilenEinsetzen(kasten, E.tipp);
+    knopf.textContent = E.tippKnopf;
+    knopf.hidden = false;
+    knopf.addEventListener("click", () => {
+      knopf.hidden = true;
+      kasten.hidden = false;
+    });
   }
   if (String(E.tuerchen).trim()) $("tuer").textContent = String(E.tuerchen).trim();
   else $("tuer").innerHTML = HERZ;
