@@ -222,6 +222,13 @@
     text-transform: uppercase;
   }
 
+  .fussnote {
+    margin: 14px 0 0;
+    color: var(--tinte-hell);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
   .geloest { animation: rein .6s ease both; }
   .geloest h1 { color: var(--rot); font-size: 46px; }
   .nachricht {
@@ -306,6 +313,7 @@
 
     <p class="rueckmeldung" id="rueckmeldung" role="status" aria-live="polite"></p>
     <div id="tipps"></div>
+    <p class="fussnote" id="fussnote" hidden></p>
   </section>
 
   <section class="karte geloest" id="geloest" aria-labelledby="geloestTitel" hidden>
@@ -362,6 +370,9 @@ const EINSTELLUNGEN = {
   // Tipps erscheinen nach so vielen falschen Versuchen, z. B.:
   //   { abVersuch: 3, text: "Es war ein ziemlich kalter Abend …" },
   tipps: [],
+
+  // Kleiner Hinweis ganz unten in der Karte. Leer lassen = nichts.
+  fussnote: "Tipp: Wenn’s dir jetzt nicht einfällt, kannst du es auch wann anders eingeben.",
 
   geloestTitel: "Richtig!",
   fusszeile: "Mit ❤️ für dich gemacht",
@@ -583,6 +594,7 @@ const KERN = (() => {
   $("knopf").textContent = E.knopf;
   $("geloestTitel").textContent = E.geloestTitel;
   $("fusszeile").textContent = E.fusszeile;
+  if (E.fussnote) { $("fussnote").textContent = E.fussnote; $("fussnote").hidden = false; }
   if (E.name) { $("fuer").textContent = "Für " + E.name; $("fuer").hidden = false; }
   if (E.raetsel) {
     for (const zeile of String(E.raetsel).split("\n")) {
